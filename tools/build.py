@@ -2,7 +2,7 @@
 """Сборка манифеста: PDF (через Typst) и статический сайт для GitHub Pages.
 
     python3 tools/build.py              собрать build/manifesto.pdf и сайт в build/site/
-    python3 tools/build.py --snapshot   то же и положить копию PDF в manifesto.pdf
+    python3 tools/build.py --snapshot   то же и положить в manifesto.pdf текст без списка подписей
     python3 tools/build.py issue-form   пересоздать форму подписи в .github/ISSUE_TEMPLATE/
 
 Нужны Python 3.11+ и пакеты из requirements.txt: pip install -r requirements.txt
@@ -224,8 +224,6 @@ def split_lead(doc: mdlite.Document) -> tuple[mdlite.Paragraph, list]:
 
 
 def build_pdf(texts: Texts, data: dict, out: Path) -> Path:
-    import typst
-
     writer = mdlite.TypstWriter(texts.manifesto.footnotes)
     lead, body = split_lead(texts.manifesto)
     (out / "lead.typ").write_text(writer.inline(lead.children) + "\n", encoding="utf-8")
@@ -238,15 +236,22 @@ def build_pdf(texts: Texts, data: dict, out: Path) -> Path:
     (out / "data.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
     write_qr(data["site_url"], out / "qr.svg")
     pdf = out / "manifesto.pdf"
+    compile_pdf(out, pdf)
+    return pdf
+
+
+def compile_pdf(out: Path, pdf: Path, text_only: bool = False) -> None:
+    """Собрать PDF из подготовленных в out файлов; text_only — без подписей."""
+    import typst
+
     typst.compile(
         str(ROOT / "manifesto.typ"),
         output=str(pdf),
         root=str(ROOT),
         font_paths=[str(ROOT / "fonts")],
         ignore_system_fonts=True,
-        sys_inputs={"build": out.relative_to(ROOT).as_posix()},
+        sys_inputs={"build": out.relative_to(ROOT).as_posix(), "text_only": "1" if text_only else ""},
     )
-    return pdf
 
 
 # ------------------------------------------------------------------ сайт
@@ -500,8 +505,14 @@ def write_issue_form() -> None:
 # ---------------------------------------------------------------- main
 
 
-def build(out: Path | None = None, today: date | None = None, signatures_csv: Path | None = None) -> Path:
-    """Собрать PDF и сайт. out — папка внутри проекта (Typst не видит файлов вне него)."""
+def build(
+    out: Path | None = None,
+    today: date | None = None,
+    signatures_csv: Path | None = None,
+    text_only_pdf: bool = False,
+) -> Path:
+    """Собрать PDF и сайт. out — папка внутри проекта (Typst не видит файлов вне него).
+    text_only_pdf — ещё и out/manifesto-text.pdf: текст без счётчика и списка подписей."""
     out = (out or ROOT / "build").resolve()
     out.mkdir(parents=True, exist_ok=True)
     today = today or datetime.now(sg.MOSCOW).date()
@@ -516,24 +527,26 @@ def build(out: Path | None = None, today: date | None = None, signatures_csv: Pa
     data = assemble(project, options, sigs, today)
     pdf = build_pdf(texts, data, out)
     build_site(project, texts, data, pdf, out, signatures_csv)
+    if text_only_pdf:
+        compile_pdf(out, out / "manifesto-text.pdf", text_only=True)
     return pdf
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", nargs="?", choices=["build", "issue-form"], default="build")
-    parser.add_argument("--snapshot", action="store_true", help="положить копию PDF в manifesto.pdf")
+    parser.add_argument("--snapshot", action="store_true", help="положить в manifesto.pdf текст без списка подписей")
     parser.add_argument("--signatures", type=Path, help="взять подписи из другого CSV (для проверки вёрстки)")
     parser.add_argument("--out", type=Path, help="папка для результата внутри проекта (по умолчанию build/)")
     args = parser.parse_args()
     if args.command == "issue-form":
         write_issue_form()
         return
-    pdf = build(out=args.out, signatures_csv=args.signatures)
+    pdf = build(out=args.out, signatures_csv=args.signatures, text_only_pdf=args.snapshot)
     print(f"PDF: {pdf.relative_to(ROOT)}; сайт: {(pdf.parent / 'site' / 'index.html').relative_to(ROOT)}")
     if args.snapshot:
-        shutil.copy(pdf, ROOT / "manifesto.pdf")
-        print("копия PDF: manifesto.pdf")
+        shutil.copy(pdf.parent / "manifesto-text.pdf", ROOT / "manifesto.pdf")
+        print("manifesto.pdf: текст без списка подписей")
 
 
 if __name__ == "__main__":

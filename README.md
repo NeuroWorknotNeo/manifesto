@@ -8,7 +8,8 @@
 - **PDF со списком подписей:** https://neuroworknotneo.github.io/manifesto/manifesto.pdf
 - **Подписать через GitHub:** [форма подписи](https://github.com/NeuroWorknotNeo/manifesto/issues/new?template=podpis.yml)
 
-Текст манифеста — [`text/manifesto.md`](text/manifesto.md), список подписей —
+Текст манифеста — [`text/manifesto.md`](text/manifesto.md) (он же в PDF без
+подписей — [`manifesto.pdf`](manifesto.pdf)), список подписей —
 [`signatures.csv`](signatures.csv). Всё, что ниже, — для организаторов.
 
 ## Как это устроено
@@ -178,7 +179,7 @@ Actions → General → Workflow permissions → Read and write permissions.**
 ```bash
 pip install -r requirements.txt
 python3 tools/build.py              # build/manifesto.pdf и build/site/index.html
-python3 tools/build.py --snapshot   # то же и обновить manifesto.pdf в корне
+python3 tools/build.py --snapshot   # то же и обновить manifesto.pdf (текст без подписей)
 python3 -m unittest discover -s tests
 ```
 

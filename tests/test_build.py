@@ -1,4 +1,5 @@
 import importlib.util
+import re
 import shutil
 import tempfile
 import unittest
@@ -11,6 +12,11 @@ import build
 import signatures as sg
 
 HAVE_TOOLS = all(importlib.util.find_spec(m) for m in ("typst", "segno"))
+
+
+def count_pages(pdf: Path) -> int:
+    """Число страниц PDF без сторонних библиотек: объекты /Type /Page (не /Pages)."""
+    return len(re.findall(rb"/Type\s*/Page(?!s)", pdf.read_bytes()))
 
 
 class HelpersTest(unittest.TestCase):
@@ -93,8 +99,12 @@ class FullBuildTest(unittest.TestCase):
                     sg.Signature("gh-1", "2026-09-24", "Иван Иванов", "Механико-математический факультет", "3 курс", "github", "gh:ivan"),
                     sg.Signature("ya-2", "2026-09-24", "Анна О'Нил", "Филиал МГУ в Севастополе", "выпускник", "form"),
                 ])
-                pdf = build.build(out=out, today=date(2026, 9, 27), signatures_csv=csv_path)
+                pdf = build.build(out=out, today=date(2026, 9, 27), signatures_csv=csv_path, text_only_pdf=True)
                 self.assertGreater(pdf.stat().st_size, 20_000)
+                # «только текст» — те же страницы манифеста, но без страницы подписей
+                full_pages = count_pages(pdf)
+                self.assertGreaterEqual(full_pages, 2)
+                self.assertEqual(count_pages(out / "manifesto-text.pdf"), full_pages - 1)
                 index = (out / "site" / "index.html").read_text(encoding="utf-8")
                 self.assertNotIn("{{", index)
                 self.assertIn("Анна О&#x27;Нил", index)

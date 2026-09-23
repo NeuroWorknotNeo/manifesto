@@ -5,6 +5,9 @@
 // Собирать командой `python3 tools/build.py`, а не typst напрямую.
 
 #let dir = sys.inputs.at("build", default: "build")
+// «только текст»: без счётчика и списка подписей — для manifesto.pdf в репозитории,
+// который иначе устаревал бы с каждой новой подписью
+#let text-only = sys.inputs.at("text_only", default: "") == "1"
 #let data = json(dir + "/data.json")
 
 #let ink = rgb("#1b365d")     // тёмно-синий: заголовки, ссылки, QR-код
@@ -110,7 +113,7 @@
   block(above: 7pt, text(font: "PT Sans", size: 8.5pt, fill: muted)[
     Редакция #data.edition от #data.edition_date
     #h(1fr)
-    Подписей: #data.total · обновлено #data.updated
+    #if not text-only [Подписей: #data.total · обновлено #data.updated]
   ])
 })
 
@@ -142,39 +145,39 @@
   )
 }
 
-#pagebreak(weak: true)
-#heading(level: 1)[Подписи]
-
-#{
-  set par(first-line-indent: 0pt)
-  if data.total > 0 [*#data.total_label* на #data.updated #data.summary] else [#data.summary]
-}
-
-#if data.total == 0 {
-  sign-box(
-    [Подпишите первым],
-    [Манифест можно подписать на сайте #link(data.site_url, data.site_url_display)
-      или по QR-коду — подпись появится в этом списке автоматически.],
-  )
-} else {
-  if data.by_faculty.len() > 1 {
-    block(above: 1em, below: 1.3em, {
-      set text(font: "PT Sans", size: 9pt, fill: muted)
-      set par(justify: false, first-line-indent: 0pt)
-      grid(
-        columns: (1fr, 1fr, 1fr),
-        column-gutter: 1.6em,
-        row-gutter: 0.45em,
-        ..data.by_faculty.map(row => [#row.faculty #box(width: 1fr, repeat(gap: 0.15em)[.]) #row.count]),
-      )
-    })
+#if not text-only {
+  pagebreak(weak: true)
+  heading(level: 1)[Подписи]
+  {
+    set par(first-line-indent: 0pt)
+    if data.total > 0 [*#data.total_label* на #data.updated #data.summary] else [#data.summary]
   }
-  if data.students.len() > 0 {
-    heading(level: 2)[Студенты и аспиранты]
-    signature-list(data.students)
-  }
-  if data.supporters.len() > 0 {
-    heading(level: 2)[Поддержали: преподаватели, сотрудники и выпускники]
-    signature-list(data.supporters)
+  if data.total == 0 {
+    sign-box(
+      [Подпишите первым],
+      [Манифест можно подписать на сайте #link(data.site_url, data.site_url_display)
+        или по QR-коду — подпись появится в этом списке автоматически.],
+    )
+  } else {
+    if data.by_faculty.len() > 1 {
+      block(above: 1em, below: 1.3em, {
+        set text(font: "PT Sans", size: 9pt, fill: muted)
+        set par(justify: false, first-line-indent: 0pt)
+        grid(
+          columns: (1fr, 1fr, 1fr),
+          column-gutter: 1.6em,
+          row-gutter: 0.45em,
+          ..data.by_faculty.map(row => [#row.faculty #box(width: 1fr, repeat(gap: 0.15em)[.]) #row.count]),
+        )
+      })
+    }
+    if data.students.len() > 0 {
+      heading(level: 2)[Студенты и аспиранты]
+      signature-list(data.students)
+    }
+    if data.supporters.len() > 0 {
+      heading(level: 2)[Поддержали: преподаватели, сотрудники и выпускники]
+      signature-list(data.supporters)
+    }
   }
 }
