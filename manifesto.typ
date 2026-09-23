@@ -61,33 +61,10 @@
 
 // ----------------------------------------------------------------- шапка
 
-#block(below: 1.4em, {
-  set par(justify: false, first-line-indent: 0pt)
-  block(below: 11pt, text(font: "PT Sans", size: 9pt, weight: "bold", tracking: 0.2em, fill: ink)[МАНИФЕСТ])
-  block(below: 13pt, text(size: 24pt, weight: "bold", fill: ink, hyphenate: false, data.title))
-  block(below: 15pt, text(size: 12pt, style: "italic", fill: muted, hyphenate: false, data.subtitle))
-  line(length: 100%, stroke: 0.9pt + ink)
-  block(above: 7pt, text(font: "PT Sans", size: 8.5pt, fill: muted)[
-    Редакция #data.edition от #data.edition_date
-    #h(1fr)
-    Подписей: #data.total · обновлено #data.updated
-  ])
-})
-
-// вводный абзац — крупнее остального текста
-#block(below: 1.1em, {
-  set text(size: 12pt)
-  set par(first-line-indent: 0pt, leading: 0.68em)
-  include dir + "/lead.typ"
-})
-
-#include dir + "/body.typ"
-
-// ------------------------------------------------------ призыв подписать
-
+// Плашка с QR-кодом: на странице подписей, пока подписей нет.
 #let sign-box(title, note) = block(
   breakable: false,
-  above: 1.6em,
+  above: 1.4em,
   below: 1.4em,
   width: 100%,
   fill: tint,
@@ -109,21 +86,42 @@
   },
 )
 
-#sign-box(
-  [Поддержите предложение],
-  [Прочитать манифест и подписать его можно на сайте
-    #link(data.site_url, data.site_url_display) или по QR-коду.
-    Список подписавших обновляется автоматически: свежая версия
-    этого документа всегда лежит на сайте.
-    #if data.organizer != "" and data.contact != "" [
-      Организатор сбора подписей: #data.organizer, #data.contact.
-    ]],
-)
+// Название слева, QR-код со ссылкой на сайт справа: на распечатке
+// подписать можно, не дочитав до конца.
+#block(below: 1.3em, {
+  set par(justify: false, first-line-indent: 0pt)
+  grid(
+    columns: (1fr, auto),
+    column-gutter: 18pt,
+    align: (left + top, center + top),
+    {
+      block(below: 11pt, text(font: "PT Sans", size: 9pt, weight: "bold", tracking: 0.2em, fill: ink)[МАНИФЕСТ])
+      block(below: 12pt, text(size: 23pt, weight: "bold", fill: ink, hyphenate: false, data.title))
+      text(size: 11.5pt, style: "italic", fill: muted, hyphenate: false, data.subtitle)
+    },
+    link(data.site_url, {
+      image(dir + "/qr.svg", width: 2.3cm)
+      v(4pt, weak: true)
+      text(font: "PT Sans", size: 7.5pt, fill: muted)[Подписать]
+    }),
+  )
+  v(12pt, weak: true)
+  line(length: 100%, stroke: 0.9pt + ink)
+  block(above: 7pt, text(font: "PT Sans", size: 8.5pt, fill: muted)[
+    Редакция #data.edition от #data.edition_date
+    #h(1fr)
+    Подписей: #data.total · обновлено #data.updated
+  ])
+})
 
-// -------------------------------------------------------------- приложение
+// вводный абзац — крупнее остального текста
+#block(below: 1.1em, {
+  set text(size: 12pt)
+  set par(first-line-indent: 0pt, leading: 0.68em)
+  include dir + "/lead.typ"
+})
 
-#pagebreak(weak: true)
-#include dir + "/appendix.typ"
+#include dir + "/body.typ"
 
 // ------------------------------------------------------------------ подписи
 

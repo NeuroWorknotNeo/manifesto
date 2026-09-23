@@ -97,14 +97,10 @@ class DocumentTest(unittest.TestCase):
 
 class RealTextsTest(unittest.TestCase):
     def test_texts_parse(self):
-        for name in ("manifesto.md", "appendix.md", "consent.md"):
+        for name in ("manifesto.md", "consent.md"):
             with self.subTest(name=name):
                 mdlite.parse((ROOT / "text" / name).read_text(encoding="utf-8"))
 
-    def test_footnote_keys_do_not_clash(self):
-        writer = mdlite.HtmlWriter()
-        for name in ("manifesto.md", "appendix.md"):
-            writer.add_footnotes(mdlite.parse((ROOT / "text" / name).read_text(encoding="utf-8")).footnotes)
 
 
 if __name__ == "__main__":

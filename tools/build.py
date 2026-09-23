@@ -120,7 +120,6 @@ def display_url(url: str) -> str:
 @dataclass
 class Texts:
     manifesto: mdlite.Document
-    appendix: mdlite.Document
     consent: mdlite.Document
 
 
@@ -140,7 +139,6 @@ def load_texts(project: Project) -> Texts:
     consent_src = consent_src.replace("{{contact}}", _md_escape(contact))
     texts = Texts(
         manifesto=mdlite.parse(read("manifesto.md")),
-        appendix=mdlite.parse(read("appendix.md")),
         consent=mdlite.parse(consent_src),
     )
     if texts.manifesto.title is None:
@@ -228,11 +226,10 @@ def split_lead(doc: mdlite.Document) -> tuple[mdlite.Paragraph, list]:
 def build_pdf(texts: Texts, data: dict, out: Path) -> Path:
     import typst
 
-    writer = mdlite.TypstWriter({**texts.manifesto.footnotes, **texts.appendix.footnotes})
+    writer = mdlite.TypstWriter(texts.manifesto.footnotes)
     lead, body = split_lead(texts.manifesto)
     (out / "lead.typ").write_text(writer.inline(lead.children) + "\n", encoding="utf-8")
     (out / "body.typ").write_text(writer.blocks(body), encoding="utf-8")
-    (out / "appendix.typ").write_text(writer.blocks(texts.appendix.blocks), encoding="utf-8")
     meta = dict(
         data,
         title=mdlite.plain_text(texts.manifesto.title),
@@ -328,11 +325,9 @@ def build_site(project: Project, texts: Texts, data: dict, pdf: Path, out: Path,
 
     writer = mdlite.HtmlWriter()
     writer.add_footnotes(texts.manifesto.footnotes)
-    writer.add_footnotes(texts.appendix.footnotes)
     lead, body = split_lead(texts.manifesto)
     lead_html = writer.inline(lead.children)
     body_html = writer.blocks(body)
-    appendix_html = writer.blocks(texts.appendix.blocks)
     notes_html = writer.footnotes_html()
 
     title = mdlite.plain_text(texts.manifesto.title)
@@ -375,7 +370,6 @@ def build_site(project: Project, texts: Texts, data: dict, pdf: Path, out: Path,
             ),
             lead=lead_html,
             body=body_html,
-            appendix=appendix_html,
             notes=notes_html,
             faculty_bars=_faculty_bars(data["by_faculty"]),
             students=_signature_list(data["students"]),
