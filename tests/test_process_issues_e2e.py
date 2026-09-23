@@ -69,6 +69,8 @@ class ProcessIssuesEndToEndTest(unittest.TestCase):
         self.work = base / "work"
         git(base, "init", "--bare", "-b", "main", str(self.origin))
         shutil.copytree(ROOT, self.work, ignore=shutil.ignore_patterns("build", "__pycache__", ".git"))
+        # тест не должен зависеть от настоящего списка подписей: начинаем с пустого
+        (self.work / "signatures.csv").write_text("id,date,name,faculty,status,source,account\n", encoding="utf-8")
         git(self.work, "init", "-b", "main")
         git(self.work, "add", "-A")
         git(self.work, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-m", "init")
