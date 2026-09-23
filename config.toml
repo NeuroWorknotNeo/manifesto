@@ -3,7 +3,7 @@
 
 # Публичный репозиторий, в котором живёт манифест, — «владелец/имя».
 # Когда сборка идёт в GitHub Actions, берётся репозиторий, в котором она идёт.
-github_repo = "NeuroWorknotNeo/msu-ai-manifesto"
+github_repo = "NeuroWorknotNeo/manifesto"
 
 # Адрес сайта. Пусто — https://<владелец>.github.io/<имя>/
 site_url = ""

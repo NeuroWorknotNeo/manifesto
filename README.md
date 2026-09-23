@@ -1,14 +1,15 @@
 # Манифест «Искусственный интеллект — каждому студенту МГУ»
 
-Здесь лежат текст манифеста и всё, что нужно для сбора подписей: сайт с
-текстом и кнопкой «Подписать», PDF, который сам обновляется с каждой новой
-подписью, и автоматика на GitHub Actions.
+Студенческая инициатива: мы просим руководство МГУ дать каждому студенту и
+аспиранту доступ к современной языковой модели. Это не официальный документ
+МГУ.
 
-- **Текст** — [`text/manifesto.md`](text/manifesto.md): две страницы о том,
-  как ИИ меняет науку, в чём проблема студентов МГУ и что можно сделать.
-- **PDF** — [`manifesto.pdf`](manifesto.pdf). Это снимок без подписей; живая
-  версия со списком лежит на сайте.
-- **Список подписей** — [`signatures.csv`](signatures.csv). Пока пуст.
+- **Прочитать и подписать:** https://neuroworknotneo.github.io/manifesto/
+- **PDF со списком подписей:** https://neuroworknotneo.github.io/manifesto/manifesto.pdf
+- **Подписать через GitHub:** [форма подписи](https://github.com/NeuroWorknotNeo/manifesto/issues/new?template=podpis.yml)
+
+Текст манифеста — [`text/manifesto.md`](text/manifesto.md), список подписей —
+[`signatures.csv`](signatures.csv). Всё, что ниже, — для организаторов.
 
 ## Как это устроено
 
@@ -34,59 +35,29 @@
 поэтому вся история видна и проверяема. Подпись через GitHub появляется на
 сайте и в PDF примерно через 2–3 минуты.
 
-## Запуск (один раз, минут 20)
+## Настройка (один раз)
 
-### 1. Отдельный публичный репозиторий
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.** Без
+   этого сайт не опубликуется: workflow «Сайт и PDF» упадёт на шаге
+   публикации.
+2. **Actions → «Сайт и PDF» → Run workflow** — первая сборка. Через пару
+   минут сайт откроется по адресу https://neuroworknotneo.github.io/manifesto/.
+3. **`config.toml`:**
+   - `organizer` и `contact` — **заполните до начала сбора подписей.** Это
+     организатор, который отвечает за данные подписавших, и способ с ним
+     связаться (Telegram или почта): они попадут на страницу согласия и в PDF;
+   - `form_url` — ссылка на Яндекс Форму, когда она будет готова (см. ниже).
+     Пока поле пусто, кнопка «Подписать» ведёт в форму на GitHub.
 
-Этот репозиторий приватный и содержит личные материалы — публиковать его
-нельзя. А заявки-подписи от посторонних и бесплатный GitHub Pages возможны
-только в публичном репозитории. Поэтому папку `manifesto/` нужно перенести в
-отдельный публичный репозиторий; её содержимое — уже готовый корень такого
-репозитория (вместе с `.github/`).
+   После правки — commit и push: сайт пересоберётся сам.
+4. **Проверка на себе.** Подпишите через GitHub, дождитесь ответа робота в
+   заявке и новой строки на сайте. Потом удалите тестовую подпись: уберите
+   строку из `signatures.csv` и сделайте коммит.
 
-1. На github.com нажмите **New repository**, имя `msu-ai-manifesto`,
-   **Public**, без README и лицензии.
-2. В клоне этого репозитория, на ветке, где есть папка `manifesto`:
-
-   ```bash
-   git subtree split --prefix=manifesto -b manifesto-public
-   git push https://github.com/NeuroWorknotNeo/msu-ai-manifesto.git manifesto-public:main
-   git branch -D manifesto-public
-   ```
-
-Дальше работайте в новом репозитории: туда робот коммитит подписи.
-
-Если назвали репозиторий иначе — поправьте `github_repo` в `config.toml` и
-выполните `python3 tools/build.py issue-form`, чтобы ссылки в форме подписи
-вели куда надо.
-
-### 2. Настройки нового репозитория
-
-1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-   Первый автоматический запуск «Сайт и PDF» после push упадёт на шаге
-   публикации, пока Pages не включён, — это нормально.
-2. **Actions → «Сайт и PDF» → Run workflow.** Через пару минут сайт
-   откроется по адресу `https://neuroworknotneo.github.io/msu-ai-manifesto/`.
-3. Если workflow «Подписи» когда-нибудь упадёт с ошибкой 403 на `git push`:
-   **Settings → Actions → General → Workflow permissions → Read and write
-   permissions.**
-
-### 3. `config.toml`
-
-- `organizer` и `contact` — **заполните до начала сбора подписей.** Это
-  организатор, который отвечает за данные подписавших, и способ с ним связаться:
-  они попадут на страницу согласия и в PDF. Контакт можно указать
-  Telegram-аккаунтом или адресом почты.
-- `form_url` — ссылка на Яндекс Форму, когда она будет готова (см. ниже).
-  Пока поле пусто, кнопка «Подписать» ведёт в форму на GitHub.
-
-После правки — commit и push: сайт пересоберётся сам.
-
-### 4. Проверка на себе
-
-Откройте сайт, подпишите через GitHub, дождитесь ответа робота в заявке и
-новой строки в списке. Потом удалите тестовую подпись: уберите строку из
-`signatures.csv` и сделайте коммит.
+Если workflow «Подписи» упадёт с ошибкой 403 на `git push`: **Settings →
+Actions → General → Workflow permissions → Read and write permissions.**
+Если переименуете репозиторий — поправьте `github_repo` в `config.toml` и
+выполните `python3 tools/build.py issue-form`.
 
 ## Подписи без GitHub: Яндекс Форма
 
@@ -141,16 +112,16 @@
 
 1. **Токен.** GitHub → Settings → Developer settings → Personal access tokens →
    **Fine-grained tokens → Generate new token**. Repository access: *Only
-   select repositories* → `msu-ai-manifesto`. Permissions: **Issues — Read and
+   select repositories* → `manifesto`. Permissions: **Issues — Read and
    write**, больше ничего. Срок действия — например, 90 дней.
 2. **Переменная.** В публичном репозитории: Settings → Secrets and variables →
    Actions → **Variables → New repository variable**: имя `FORM_BOT_LOGIN`,
    значение — ваш логин на GitHub (от его имени интеграция создаёт заявки).
 3. **Интеграция.** В форме: **Интеграции → HTTP-запрос**:
    - метод `POST`, адрес
-     `https://api.github.com/repos/NeuroWorknotNeo/msu-ai-manifesto/issues`;
+     `https://api.github.com/repos/NeuroWorknotNeo/manifesto/issues`;
    - заголовки `Authorization: Bearer <токен>`,
-     `Accept: application/vnd.github+json` и `User-Agent: msu-ai-manifesto-form`
+     `Accept: application/vnd.github+json` и `User-Agent: manifesto-form`
      (без `User-Agent` GitHub отвечает ошибкой 403);
    - тело в формате JSON: `title` — «Подпись из формы», `body` — строки
      ниже, где вместо `…` вставлены ответы (кнопка переменных в редакторе

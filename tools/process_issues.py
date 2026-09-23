@@ -54,7 +54,7 @@ class GitHub:
             "Authorization": f"Bearer {self.token}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "msu-ai-manifesto-bot",
+            "User-Agent": "manifesto-bot",
         }
         if body is not None:
             headers["Content-Type"] = "application/json"
