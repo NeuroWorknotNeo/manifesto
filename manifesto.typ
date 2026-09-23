@@ -28,7 +28,7 @@
   },
 )
 #set text(font: "PT Serif", size: 11pt, lang: "ru", region: "ru", hyphenate: true)
-#set par(justify: true, leading: 0.7em, spacing: 0.7em, first-line-indent: (amount: 1.3em, all: true))
+#set par(justify: true, leading: 0.66em, spacing: 0.66em, first-line-indent: (amount: 1.3em, all: true))
 #show link: set text(fill: ink)
 // у PT Serif есть надстрочные только ¹²³, поэтому все номера сносок рисуем одинаково
 #set super(typographic: false)
