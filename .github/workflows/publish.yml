@@ -1,0 +1,54 @@
+# Тесты, сборка PDF и сайта, публикация на GitHub Pages.
+#
+# Запускается после каждого push в main, вручную и из workflow «Подписи»
+# (пуши, сделанные токеном Actions, сами по себе других workflow не запускают).
+# На pull request только проверяет, что всё собирается.
+name: Сайт и PDF
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# публикации идут строго по очереди: в очереди остаётся только самая свежая
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('check-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Тесты
+        run: python3 -m unittest discover -s tests
+      - name: Сборка
+        run: python3 tools/build.py
+      - uses: actions/upload-pages-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          path: build/site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

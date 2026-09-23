@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<meta name="description" content="{{ description }}">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ site_url }}">
+<link rel="canonical" href="{{ site_url }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231b365d'/%3E%3Cpath d='M18 44V20h6v24zm11 0V20h6v24zm11 0V20h6v24z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+{{ css }}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Манифест</p>
+    <h1>{{ title }}</h1>
+    <p class="subtitle">{{ subtitle }}</p>
+    <div class="actions">{{ sign_links }}</div>
+    {{ alt_sign }}
+    <p class="counter"><a href="#signatures">{{ total_label }}</a> · обновлено {{ updated }}</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <article>
+    <p class="lead">{{ lead }}</p>
+{{ body }}
+  </article>
+
+  <aside class="sign-box" id="sign" aria-labelledby="sign-title">
+    <h2 id="sign-title">Поддержите предложение</h2>
+    <p>Если вы согласны, подпишите манифест. Подпись появится в списке ниже и в PDF-версии. Что публикуется и как отозвать подпись — на странице <a href="consent.html">«Согласие на публикацию подписи»</a>.</p>
+    <div class="actions">{{ sign_links }}</div>
+    {{ alt_sign }}
+    <div class="share">
+      <span>Поделиться:</span>
+      <a href="{{ share_telegram }}" rel="noopener">Telegram</a>
+      <a href="{{ share_vk }}" rel="noopener">ВКонтакте</a>
+      <button type="button" data-copy="{{ site_url }}">Скопировать ссылку</button>
+    </div>
+  </aside>
+
+  <section class="appendix">
+{{ appendix }}
+  </section>
+
+  <section class="notes" aria-labelledby="notes-title">
+    <h2 id="notes-title">Источники</h2>
+    {{ notes }}
+  </section>
+
+  <section id="signatures" aria-labelledby="signatures-title">
+    <h2 id="signatures-title">Подписи</h2>
+    <p class="summary">{{ summary }}</p>
+    {{ faculty_bars }}
+    <input class="search" type="search" placeholder="Найти по имени или факультету" aria-label="Поиск по подписям"{{ search_hidden }}>
+    <div{{ students_hidden }}>
+      <h3>Студенты и аспиранты</h3>
+      {{ students }}
+    </div>
+    <div{{ supporters_hidden }}>
+      <h3>Поддержали: преподаватели, сотрудники и выпускники</h3>
+      {{ supporters }}
+    </div>
+    <p class="nothing" hidden>Никого не нашлось.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Студенческая инициатива. Сайт и манифест не являются официальными документами МГУ.</p>
+    {{ contact_line }}
+    <p>Редакция текста {{ edition }} от {{ edition_date }}
+      ·
+      <a href="manifesto.pdf">PDF</a> ·
+      <a href="consent.html">Согласие на публикацию подписи</a> ·
+      <a href="signatures.csv">Список подписей в CSV</a> ·
+      <a href="qr.svg">QR-код для печати</a> ·
+      <a href="{{ repo_url }}">Исходники и история изменений</a></p>
+  </div>
+</footer>
+<script>
+{{ js }}
+</script>
+</body>
+</html>

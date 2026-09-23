@@ -1,0 +1,6 @@
+# Файл создан командой «python3 tools/build.py issue-form».
+blank_issues_enabled: true
+contact_links:
+  - name: Текст манифеста и список подписей
+    url: https://neuroworknotneo.github.io/msu-ai-manifesto/
+    about: Сайт инициативы — там же PDF и подпись без GitHub, если она настроена.

@@ -1,0 +1,38 @@
+# Подписи из заявок на GitHub -> signatures.csv (подробности в tools/process_issues.py).
+#
+# Обработчик сам решает, какие открытые заявки — подписи, поэтому один
+# запуск подбирает всё, что накопилось. Раз в час он запускается ещё и по
+# расписанию: если несколько заявок пришли одновременно, GitHub может
+# отменить часть запусков в очереди, и расписание их подберёт.
+name: Подписи
+
+on:
+  issues:
+    types: [opened, reopened]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # коммит в signatures.csv
+  issues: write     # ответы в заявках и их закрытие
+  actions: write    # запуск пересборки сайта (publish.yml)
+
+concurrency:
+  group: signatures
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Перенести подписи из заявок
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORM_BOT_LOGIN: ${{ vars.FORM_BOT_LOGIN }}
+        run: python3 tools/process_issues.py
